@@ -1,2 +1,2 @@
 # angular
-Test repository fro angular
+Test repository for angular
