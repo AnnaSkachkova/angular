@@ -4,29 +4,46 @@
   angular.module('NarrowItDownApp', [])
     .controller('NarrowItDownController', NarrowItDownController)
     .service('MenuSearchService', MenuSearchService)
-    .constant('ApiBasePath', "https://davids-restaurant.herokuapp.com");
+    .constant('ApiBasePath', "https://davids-restaurant.herokuapp.com")
+    .directive('foundItems', FoundItemsDirective);
+
+    function FoundItemsDirective() {
+      var ddo = {
+        templateUrl: 'foundItems.html',
+        scope: {
+          items: '<',
+          onRemove: '&'
+        }
+      };
+
+      return ddo;
+    }
 
     NarrowItDownController.$inject = ['MenuSearchService'];
     function NarrowItDownController(MenuSearchService) {
-      var narrow = this;
+      var list = this;
 
-      narrow.searchTerm = "";
-      narrow.found = [];
+      list.searchTerm = "";
+      list.items = [];
 
-      narrow.search = function () {
-        if (narrow.searchTerm.length) {
-          console.log('searchTerm', narrow.searchTerm);
+      list.search = function () {
+        if (list.searchTerm.length) {
+          console.log('searchTerm', list.searchTerm);
 
-          var promise = MenuSearchService.getMatchedMenuItems(narrow.searchTerm);
+          var promise = MenuSearchService.getMatchedMenuItems(list.searchTerm);
 
           promise.then(function (responce) {
             console.log(responce);
-            narrow.found = response;
+            list.items = responce;
           })
           .catch(function (error) {
             console.error('Error!!!');
           });
         }
+      };
+
+      list.removeItem = function (index) {
+        list.items.splice(index, 1);
       }
 
     }
@@ -41,7 +58,7 @@
           url: (ApiBasePath + "/menu_items.json")
         }).then(function (result) {
           console.log('result', result);
-          var foundItems = result.data.menu_items.filter(function (item)
+          var foundItems = result.data.menu_items.filter(function (item) {
             return item.description.indexOf(searchTerm) > 0;
           });
 
